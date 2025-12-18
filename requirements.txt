@@ -1,0 +1,4 @@
+crewai
+crewai-tools
+langchain-openai
+monocle_apptrace>=0.4.0

@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 from monocle_apptrace.instrumentation.common.scope_wrapper import monocle_trace_scope
 from monocle_apptrace.instrumentation import setup_monocle_telemetry
     # Setup monocle telemetry
-setup_monocle_telemetry(workflow_name="crewai_travel_agent")
+setup_monocle_telemetry(workflow_name="crewai_travel_agent", monocle_exporters_list = 'file,okahu')
 
 logging.basicConfig(level=logging.WARN)
 
@@ -167,6 +167,14 @@ def create_crewai_travel_crew(travel_request: str):
 
 def execute_crewai_travel_request(travel_request: str):
     """Execute a travel request using CrewAI and return the result."""
+    crew = create_crewai_travel_crew(travel_request)
+    result = crew.kickoff(inputs={
+        "travel_request": travel_request
+    })
+    return str(result)
+
+async def execute_crewai_travel_request_async(travel_request: str):
+    """Execute a travel request using CrewAI asynchronously and return the result."""
     crew = create_crewai_travel_crew(travel_request)
     result = crew.kickoff(inputs={
         "travel_request": travel_request

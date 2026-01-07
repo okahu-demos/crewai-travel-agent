@@ -4,4 +4,4 @@ crewai-tools==1.7.2
 # crewai 1.7.2 requires openai~=1.83.0, but langchain-openai>=1.0.0 requires openai>=1.109.1
 langchain-openai<1.0.0
 --extra-index-url https://okahu.jfrog.io/artifactory/api/pypi/okahu-patch-pypi/simple
-monocle_apptrace==0.7.0b2
+monocle-apptrace==0.7.0b6

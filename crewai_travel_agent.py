@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 from monocle_apptrace.instrumentation.common.scope_wrapper import monocle_trace_scope
 from monocle_apptrace.instrumentation import setup_monocle_telemetry
     # Setup monocle telemetry
-setup_monocle_telemetry(workflow_name="crewai_travel_agent", monocle_exporters_list = 'file,okahu')
+setup_monocle_telemetry(workflow_name="okahu_demos_crewai_travel_agent", monocle_exporters_list = 'file,okahu')
 
 logging.basicConfig(level=logging.WARN)
 

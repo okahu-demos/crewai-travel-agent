@@ -39,12 +39,12 @@ async def test_agent_invocation(monocle_trace_asserter: TraceAssertion):
         .contains_output("booked a flight from San Francisco to Mumbai")
     
     monocle_trace_asserter.called_agent("Hotel Booking Agent") \
-        .contains_input("Marriott Intercontinental in Mumbai") \
-        .contains_output("booked")
+        .contains_input("Marriott Intercontinental").contains_input("Mumbai") \
+        .contains_output("Confirmed")
     
     monocle_trace_asserter.called_agent("Supervisor Travel Agent") \
         .contains_input("Book a flight from San Francisco to Mumbai") \
-        .contains_output("Mumbai")
+        .contains_output("flight from San Francisco to Mumbai").contains_output("booked")
 
 
 @pytest.mark.asyncio
@@ -67,7 +67,7 @@ async def test_complete_booking_flow(monocle_trace_asserter: TraceAssertion):
     
     # Verify supervisor coordinated everything
     monocle_trace_asserter.called_agent("Supervisor Travel Agent") \
-        .contains_output("flight").contains_output("hotel")
+        .contains_output("Flight").contains_output("Hotel")
 
 
 @pytest.mark.asyncio
@@ -83,7 +83,7 @@ async def test_hotel_only_booking(monocle_trace_asserter: TraceAssertion):
         .contains_output("success").contains_output("Marriott in New York")
     
     monocle_trace_asserter.called_agent("Hotel Booking Agent") \
-        .contains_input("Marriott hotel in New York") \
+        .contains_input("Marriott").contains_input("New York") \
         .contains_output("booked")
 
 

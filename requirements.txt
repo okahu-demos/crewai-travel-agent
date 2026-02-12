@@ -2,4 +2,4 @@ crewai==0.95.0
 # Note: Using langchain-openai<1.0.0 to avoid conflict with crewai's openai dependency
 # crewai 1.7.2 requires openai~=1.83.0, but langchain-openai>=1.0.0 requires openai>=1.109.1
 langchain-openai<1.0.0
-monocle-apptrace==0.7.3
+monocle-apptrace==0.7.4

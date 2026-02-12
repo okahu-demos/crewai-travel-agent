@@ -3,4 +3,4 @@ pytest-asyncio==1.3.0
 # Pin to match crewai 1.7.2 requirements
 python-dotenv~=1.1.1
 tokenizers~=0.20.3
-monocle-test-tools==0.7.3
+monocle-test-tools==0.7.4

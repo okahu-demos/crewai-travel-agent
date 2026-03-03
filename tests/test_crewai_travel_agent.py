@@ -206,10 +206,10 @@ agent_test_cases: list[TestCase] = [
 
 @MonocleValidator().monocle_testcase(agent_test_cases)
 async def test_run_agents(my_test_case: TestCase):
-    # await MonocleValidator().test_workflow_async(execute_crewai_travel_request_async, my_test_case)
-    travel_request = "Book a flight from San Francisco to Mumbai for 26th April 2026. Book a two queen room at Marriott Intercontinental in Mumbai for 27th April 2026 for 4 nights" 
-    crew = create_crewai_travel_crew(travel_request)
-    await MonocleValidator().test_agent_async(crew, "crewai", my_test_case, session_id=session_id)
+    await MonocleValidator().test_workflow_async(execute_crewai_travel_request_async, my_test_case)
+    # travel_request = "Book a flight from San Francisco to Mumbai for 26th April 2026. Book a two queen room at Marriott Intercontinental in Mumbai for 27th April 2026 for 4 nights" 
+    # crew = create_crewai_travel_crew(travel_request)
+    # await MonocleValidator().test_agent_async(crew, "crewai", my_test_case, session_id=session_id)
     await sleep(2)  # Ensure all telemetry is flushed
 
 if __name__ == "__main__":

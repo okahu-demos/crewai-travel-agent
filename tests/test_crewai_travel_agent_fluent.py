@@ -2,20 +2,31 @@ from asyncio import sleep
 import os
 import sys
 import pytest
+import pytest_asyncio
 
 # Add parent directory to path to import crewai_travel_agent module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from monocle_test_tools import TraceAssertion
-from crewai_travel_agent import create_crewai_travel_crew
+from crewai_travel_agent import create_crewai_travel_crew,generate_session_id
+
+
+session_id = None
+
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def setup_session():
+    """Set up the session."""
+    global session_id
+    if session_id is None:
+        session_id = generate_session_id()
 
 @pytest.mark.asyncio
 async def test_tool_invocation(monocle_trace_asserter: TraceAssertion):
     """Test tool invocation with CrewAI travel agent."""
-    travel_request = "Book a flight from San Francisco to Mumbai for 26th April 2026. Book a two queen room at Marriott Intercontinental in Mumbai for 27th April 2026 for 4 nights."
+    travel_request = "Book a flight from San Francisco to Mumbai for 26th April 2026. Book a two queen room at Marriott Intercontinental in Mumbai for 27th April 2026 for 4 nights" 
     crew = create_crewai_travel_crew(travel_request)
     
-    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request)
+    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request, session_id=session_id)
     
     monocle_trace_asserter.called_tool("book_flight", "Flight Booking Agent") \
         .contains_input("Mumbai").contains_input("San Francisco").contains_input("26th April 2026") \
@@ -32,7 +43,7 @@ async def test_agent_invocation(monocle_trace_asserter: TraceAssertion):
     travel_request = "Book a flight from San Francisco to Mumbai for 28th April 2026. Book a two queen room at Marriott Intercontinental in Mumbai for 29th April 2026 for 4 nights."
     crew = create_crewai_travel_crew(travel_request)
     
-    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request)
+    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request, session_id=session_id)
     
     monocle_trace_asserter.called_agent("Flight Booking Agent") \
         .contains_input("Book a flight from San Francisco to Mumbai for 28th April 2026") \
@@ -53,7 +64,7 @@ async def test_complete_booking_flow(monocle_trace_asserter: TraceAssertion):
     travel_request = "I need to travel from New York to London on January 15th, 2026. Please book me a flight and a hotel stay for 5 nights."
     crew = create_crewai_travel_crew(travel_request)
     
-    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request)
+    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request, session_id=session_id)
     
     # Verify flight booking
     monocle_trace_asserter.called_tool("book_flight", "Flight Booking Agent") \
@@ -76,7 +87,7 @@ async def test_hotel_only_booking(monocle_trace_asserter: TraceAssertion):
     travel_request = "Book a Marriott hotel in New York for 3 nights"
     crew = create_crewai_travel_crew(travel_request)
     
-    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request)
+    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request, session_id=session_id)
     
     monocle_trace_asserter.called_tool("book_hotel", "Hotel Booking Agent") \
         .contains_input("Marriott").contains_input("New York").contains_input("3") \
@@ -93,7 +104,7 @@ async def test_flight_only_booking(monocle_trace_asserter: TraceAssertion):
     travel_request = "Book a flight from JFK to LAX"
     crew = create_crewai_travel_crew(travel_request)
     
-    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request)
+    await monocle_trace_asserter.run_agent_async(crew, "crewai", travel_request, session_id=session_id)
     
     monocle_trace_asserter.called_tool("book_flight", "Flight Booking Agent") \
         .contains_input("JFK").contains_input("LAX") \

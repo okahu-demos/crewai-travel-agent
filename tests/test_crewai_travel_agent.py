@@ -10,22 +10,12 @@ import sys
 import pytest 
 import logging
 from dotenv import load_dotenv
-import pytest_asyncio
 
 # Add parent directory to path to import crewai_travel_agent module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from crewai_travel_agent import create_crewai_travel_crew, generate_session_id, execute_crewai_travel_request_async
+from crewai_travel_agent import execute_crewai_travel_request_async
 from monocle_test_tools import TestCase, MonocleValidator
-
-session_id = None
-
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def setup_session():
-    """Set up the session."""
-    global session_id
-    if session_id is None:
-        session_id = generate_session_id()
 
 OKAHU_API_KEY = os.environ.get('OKAHU_API_KEY')
 logging.basicConfig(level=logging.WARN)
@@ -207,9 +197,6 @@ agent_test_cases: list[TestCase] = [
 @MonocleValidator().monocle_testcase(agent_test_cases)
 async def test_run_agents(my_test_case: TestCase):
     await MonocleValidator().test_workflow_async(execute_crewai_travel_request_async, my_test_case)
-    # travel_request = "Book a flight from San Francisco to Mumbai for 26th April 2026. Book a two queen room at Marriott Intercontinental in Mumbai for 27th April 2026 for 4 nights" 
-    # crew = create_crewai_travel_crew(travel_request)
-    # await MonocleValidator().test_agent_async(crew, "crewai", my_test_case, session_id=session_id)
     await sleep(2)  # Ensure all telemetry is flushed
 
 if __name__ == "__main__":

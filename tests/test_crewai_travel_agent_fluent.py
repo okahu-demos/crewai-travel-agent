@@ -106,3 +106,4 @@ async def test_flight_only_booking(monocle_trace_asserter: TraceAssertion):
 
 if __name__ == "__main__":
     pytest.main([__file__])
+    

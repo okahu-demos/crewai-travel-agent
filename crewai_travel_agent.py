@@ -5,7 +5,6 @@ from crewai.tools import BaseTool
 import uuid
 from langchain_openai import ChatOpenAI
 
-from monocle_apptrace.instrumentation.common.scope_wrapper import monocle_trace_scope
 from monocle_apptrace.instrumentation import setup_monocle_telemetry
     # Setup monocle telemetry
 setup_monocle_telemetry(workflow_name="okahu_demos_crewai_travel_agent", monocle_exporters_list = 'file,okahu')
@@ -76,7 +75,6 @@ def create_agents():
         allow_delegation=False,
         max_iter=5,
         step_callback=None,
-        memory = True
     )
 
     # Create flight booking agent
@@ -90,7 +88,6 @@ def create_agents():
         allow_delegation=False,
         max_iter=5,
         step_callback=None,
-        memory = True
     )
 
     # Create supervisor agent - with access to all tools to avoid delegation issues
@@ -104,7 +101,6 @@ def create_agents():
         allow_delegation=False,  # Disable delegation to avoid validation errors,
         max_iter=5,
         step_callback=None,
-        memory = True
     )
     
     return hotel_booking_agent, flight_booking_agent, supervisor_agent
@@ -165,51 +161,39 @@ def create_crewai_travel_crew(travel_request: str):
     )
     return crew
 
-def execute_crewai_travel_request(travel_request: str):
-    """Execute a travel request using CrewAI and return the result."""
-    crew = create_crewai_travel_crew(travel_request)
-    result = crew.kickoff(inputs={
-        "travel_request": travel_request
-    })
-    return str(result)
-
-async def execute_crewai_travel_request_async(travel_request: str):
-    """Execute a travel request using CrewAI asynchronously and return the result."""
-    crew = create_crewai_travel_crew(travel_request)
-    result = crew.kickoff(inputs={
-        "travel_request": travel_request
-    })
-    return str(result)
-
 
 if __name__ == "__main__":
-    session_id = generate_session_id()
-    print(f"Session: {session_id}")
-    with monocle_trace_scope("agentic.session", session_id):
-        while True:
-            try:
-                user_request = input("\nI am a travel booking agent. How can I assist you with your travel plans? ").strip()
-                
-                # Check for quit commands
-                if user_request.lower() in ["quit", "exit"]:
-                    print("\nEnding session. Goodbye!")
-                    break
-                
-                # Skip empty inputs
-                if not user_request:
-                    continue
-                
-                # Execute the travel request
-                result = execute_crewai_travel_request(user_request)
-                
-                print(f"\nAssistant: {result}\n")
-                
-            except KeyboardInterrupt:
-                # Handle Ctrl+C gracefully
-                print("\n\nSession interrupted. Goodbye!")
+    crew = None
+    while True:
+        try:
+            user_request = input("\nI am a travel booking agent. How can I assist you with your travel plans? ").strip()
+            
+            # Check for quit commands
+            if user_request.lower() in ["quit", "exit"]:
+                print("\nEnding session. Goodbye!")
                 break
+            
+            # Skip empty inputs
+            if not user_request:
+                continue
+            
+            # Create the crew only once and reuse it for subsequent turns
+            if crew is None:
+                crew = create_crewai_travel_crew(user_request)
 
-            except Exception as e:
-                # Catch any unexpected errors without crashing
-                print(f"\nAn error occurred: {e}\n")
+            # Execute the travel request with the existing crew
+            result = crew.kickoff(inputs={
+                "travel_request": user_request
+            })
+            
+            print(f"\nAssistant: {result}\n")
+            
+        except KeyboardInterrupt:
+            # Handle Ctrl+C gracefully
+            print("\n\nSession interrupted. Goodbye!")
+            break
+
+        except Exception as e:
+            # Catch any unexpected errors without crashing
+            print(f"\nAn error occurred: {e}\n")
 
